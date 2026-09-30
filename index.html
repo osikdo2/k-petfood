@@ -1,0 +1,1136 @@
+/**
+ * K-Petfood Official Web Application
+ * Handles Bilingual Translation (KO / EN), Product Filtering, Traceability Lookup, and B2B Modals.
+ */
+
+// Current Language State: 'ko' or 'en'
+let currentLang = 'ko';
+let activeSpecies = 'all';
+let activeCategory = 'all';
+
+// -------------------------------------------------------------
+// 1. Multilingual Translation Dictionary (KO / EN)
+// -------------------------------------------------------------
+const i18n = {
+  ko: {
+    topBannerText: "농림축산식품부 인증 · 스마트 HACCP 청정 제조 시설 · 전 세계 18개국 수출",
+    topBannerQuality: "100% 휴먼그레이드 원료",
+    topBannerESG: "판매액 2.5% 유기동물 보호소 기부",
+    logoSub: "대한민국 청정 자연이 빚은 프리미엄 펫푸드",
+    navNature: "청정 자연",
+    navCert: "정부 공인 & 시설",
+    navIngredients: "K-특산 원재료",
+    navTrace: "생산 이력 조회",
+    navProducts: "제품 라인업",
+    navGlobal: "수출 & 소비",
+    navCSR: "사회적 기여",
+    btnBuyerInquiry: "해외 바이어 상담",
+    
+    // Hero & Mockup Design
+    mockupLabel: "대한민국 청정 자연의 발견",
+    mockupTitle: "신선함 (Freshness)",
+    mockupDesc: "한국의 청정 자연에서 엄선한 유기농 과일, 해조류, 채소 및 곡물의 풍부한 영양. 지역 농가에서 직수급한 가장 순수하고 영양가 높은 프리미엄 펫푸드를 만나보세요!",
+    mockupBtnShop: "제품 둘러보기 (Shop Now)",
+    heroBadge: "대한민국 농림축산식품부 & K-Clean Nature 공식 승인",
+    heroTitleSub: "사람과 반려동물이 함께 누리는",
+    heroTitleMain: "대한민국 정부 공인 K-프리미엄 펫푸드",
+    heroDesc: "국산 가루쌀, 6년근 고려 인삼, 청정 완도 해조류, 유기농 감자·고구마. 대한민국 청정 자연의 비옥한 토양과 맑은 해역에서 수확한 100% 휴먼그레이드 식재료로 제조합니다.",
+    heroCoexistTitle: "인간과 반려동물의 건강한 상생 (One Health Philosophy)",
+    heroCoexistSub: "사람이 먹을 수 있는 100% 휴먼그레이드 식재료만을 사용하여 반려동물의 평생 건강을 지킵니다.",
+    heroBtnExplore: "제품 라인업 둘러보기",
+    heroBtnTrace: "생산 이력 샘플 조회",
+    badge1Title: "정부 공식 승인",
+    badge1Sub: "농림축산식품부",
+    badge2Title: "100% K-특산품",
+    badge2Sub: "가루쌀 & 인삼 & 해조",
+    badge3Title: "스마트 HACCP",
+    badge3Sub: "클린룸 멸균 공정",
+    badge4Title: "글로벌 18개국",
+    badge4Sub: "해외 수출 인증 규격",
+    heroCardSubtitle: "K-Petfood Certification Summary",
+    heroCardTitle: "대한민국 정부 수출 공인 인증서",
+    metric1Label: "원재료 이력 추적률",
+    metric1Sub: "수확일시 ~ 제조일시 공개",
+    metric2Label: "글루텐 프리 포뮬러",
+    metric2Sub: "국산 프리미엄 가루쌀 기반",
+    metric3Label: "유기농 원료 함량",
+    metric3Sub: "친환경 농축산물 인증",
+    metric4Label: "유기견 센터 사료 기부",
+    metric4Sub: "판매액 2.5% 자동 적립",
+    heroQuickTrace: "생산 롯트번호 즉시 확인",
+    btnSearch: "조회",
+
+    // Section 1: Nature
+    naturePre: "ORIGIN & PURITY",
+    natureTitle: "사계절이 빚어낸 대한민국의 청정한 자연",
+    natureDesc: "유네스코 생물권 보전지역과 삼면을 둘러싼 청정 해역, 비옥한 토양. K-Petfood는 인위적인 첨가물이 필요 없을 만큼 생명력 넘치는 한국의 자연 유산에서 시작됩니다.",
+    natureCard1Title: "뚜렷한 사계절과 비옥한 토양",
+    natureCard1Desc: "일교차가 크고 풍부한 일조량 덕분에 영양소가 농축된 곡물과 채소가 자라납니다. 농약 걱정 없는 비옥한 점토질 토양에서 최상의 프리미엄 원재료가 수확됩니다.",
+    natureCard2Title: "완도·남해의 청정 맥반석 해역",
+    natureCard2Desc: "맥반석 바닥층을 통과한 미네랄이 풍부한 한국의 청정 해역에서 채취한 미역과 다시마는 오메가-3와 후코이단이 풍부하여 반려동물의 피모와 면역력을 자연 치유합니다.",
+    natureCard3Title: "지리산 자락 천연 암반수 제조",
+    natureCard3Desc: "사료 제조 시 사용되는 공정수는 지하 300m 화강암반층에서 끌어올린 천연 미네랄 음용수만을 사용하여 소화 흡수율을 극대화하고 신장 건강을 보호합니다.",
+
+    // Section 2: Certification
+    certBadge: "Republic of Korea Official Endorsement",
+    certTitle: "대한민국 정부가 공식 인정한 최첨단 안전 기준",
+    certDesc: "K-Petfood는 대한민국 농림축산식품부 및 국가 공인 검사기관의 150여 가지 유해물질 불검출 검증을 통과하였습니다. 스마트 HACCP 및 GMP 무균 자동화 설비에서 생산되어 미국 AAFCO 및 유럽 FEDIAF 영양 기준을 100% 충족합니다.",
+    certItem1Title: "정부 공식 품질 보증",
+    certItem1Sub: "농림축산식품부 정식 등록",
+    certItem2Title: "스마트 HACCP 공인",
+    certItem2Sub: "IoT 실시간 위생 모니터링",
+    certItem3Title: "유기농 가공식품 인증",
+    certItem3Sub: "국립농산물품질관리원",
+    certItem4Title: "ISO 22000 & FDA 규격",
+    certItem4Sub: "해외 수출 통관 정밀 검역 완료",
+    plantTag: "Smart Bio-Pet Plant",
+    plantName: "충북 오송 첨단 바이오 펫푸드 제1공장",
+    plantLocationTitle: "생산 공장 지역",
+    plantLocationDesc: "대한민국 충청북도 청주시 흥덕구 오송생명과학단지 펫바이오 클러스터",
+    plantCleanTitle: "클린룸 Class 1,000 무균실",
+    plantCleanDesc: "반도체 공정 수준의 3중 헤파필터 공기정화 및 전 구역 에어샤워 시스템 가동",
+    plantTechTitle: "스마트 자동 검출 및 저온 진공 동결 건조기",
+    plantTechDesc: "3D X-Ray 이물질 검출기 0.1mm 오차 차단 & 영양소 파괴를 99% 방지하는 진공 동결건조 라인",
+    plantCapacityLabel: "월간 생산 규모 (Capacity)",
+    btnFactoryAudit: "공장 실사 리포트 요청",
+
+    // Section 3: Ingredients
+    ingPre: "REGIONAL SPECIALTIES",
+    ingTitle: "대한민국 명품 지역 특산 원재료",
+    ingDesc: "가루쌀, 완도 해조류, 지역 특산 과일부터 활력을 돋우는 고려 인삼, 비옥한 토양의 감자·고구마, 유기농 채소까지 대한민국 전역의 명품 농특산물을 엄선하여 담았습니다.",
+    ing1Region: "전남 해남 / 전북 익산",
+    tagGlutenFree: "100% 글루텐 프리",
+    ing1Name: "국산 K-가루쌀 (Milled Rice Flour)",
+    ing1Desc: "밀가루 대체 신소재로 농촌진흥청이 육성한 특화 품종. 전분 손상이 적고 물 흡수성이 우수하여 민감한 반려동물의 장내 소화 흡수율을 98%까지 끌어올립니다.",
+    ing1Benefit: "소화 장애 예방 & 저알러지",
+    ing2Region: "전남 완도 청정해역",
+    tagMarine: "천연 오메가-3",
+    ing2Name: "완도 다시마 & 쇠미역 (Kelp & Seaweed)",
+    ing2Desc: "청정 남해의 맥반석 암초 지대에서 채취. 후코이단과 천연 요오드, 미네랄이 풍부하여 면역 세포를 활성화하고 반려동물의 윤기 있는 피모 형성을 촉진합니다.",
+    ing2Benefit: "천연 피모 보습 & 면역 증강",
+    ing3Region: "충남 금산 / 풍기",
+    tagGinseng: "진세노사이드 함유",
+    ing3Name: "6년근 고려 인삼 & 홍삼 (Korean Red Ginseng)",
+    ing3Desc: "한국의 대표 영약 인삼의 사포닌 성분을 반려동물 맞춤 저분자 발효 공법으로 가공. 노령견과 노령묘의 원기 회복 및 심혈관 면역력을 획기적으로 보조합니다.",
+    ing3Benefit: "노령기 활력 증진 & 심혈관 보호",
+    ing4Region: "전남 해남 / 강원 평창",
+    tagFiber: "식이섬유 풍부",
+    ing4Name: "해남 꿀고구마 & 고랭지 감자 (Sweet Potato & Potato)",
+    ing4Desc: "미네랄 황토에서 자란 해남 고구마와 해발 700m 강원 고랭지 감자는 유익한 식이섬유와 펙틴이 풍부하여 변비 개선 및 혈당 스파이크를 방지하는 건강한 탄수화물원입니다.",
+    ing4Benefit: "장내 유익균 배양 & 포만감 유지",
+    ing5Region: "전남 나주 / 제주 서귀포",
+    tagFruit: "천연 항산화제",
+    ing5Name: "나주 배 & 제주 블루베리 & 감귤 (Local Fruits)",
+    ing5Desc: "나주 배의 루테올린 성분은 기관지와 호흡기 건강을 돕고, 유기농 블루베리의 안토시아닌은 노화 방지 및 안구 망막 건강을 안전하게 보호합니다.",
+    ing5Benefit: "호흡기 보호 & 눈 건강 서포트",
+    ing6Region: "충남 부여 / 경기 양평",
+    tagVeg: "100% 무농약 유기농",
+    ing6Name: "유기농 단호박 & 당근 & 브로콜리 (Organic Veggies)",
+    ing6Desc: "화학 비료와 살충제 없이 재배한 대한민국 친환경 유기농 채소. 천연 베타카로틴과 설포라판이 풍부하여 체내 활성산소를 억제하고 신장 요로계 결석 생성을 방지합니다.",
+    ing6Benefit: "세포 노화 방지 & 체내 독소 배출",
+
+    // Section 4: Traceability
+    traceBadge: "End-to-End Batch Transparency",
+    traceTitle: "원재료 수확부터 완제품 생산까지 투명한 전 주기 이력 추적 시스템",
+    traceDesc: "바이어와 소비자가 제품 패키지에 인쇄된 고유 롯트(Lot) 번호를 입력하면, 원재료의 수확일시, 산지, 잔류농약 검사 결과 및 완제품의 스마트 팩토리 제조일시를 1초 만에 실시간으로 확인하실 수 있습니다.",
+    traceSamplePrompt: "클릭하여 샘플 롯트번호 바로 테스트:",
+    btnRunTrace: "이력 조회하기",
+
+    // Section 5: Products
+    prodPre: "PRODUCT SHOWCASE",
+    prodTitle: "반려동물 맞춤형 프리미엄 제품군",
+    prodDesc: "강아지와 고양이의 생애주기별 영양 요구량에 맞춰 주식, 천연 간식, 질병 보조 건강식으로 세분화하였습니다.",
+    filterAll: "전체 보기",
+    filterDog: "강아지 (Dog)",
+    filterCat: "고양이 (Cat)",
+    catTabAll: "모든 카테고리",
+    catTabMeal: "🍚 1. 주식 / 식사 (Complete Meals)",
+    catTabTreat: "🥕 2. 영양 간식 (Natural Treats)",
+    catTabHealth: "🩺 3. 특정 질병 보조 건강식 (Functional Care)",
+
+    // Section 6: Global
+    globalPre: "GLOBAL FOOTPRINT",
+    globalTitle: "대한민국을 넘어 세계에서 사랑받는 K-Petfood",
+    globalDesc: "국내 주요 대도시 전문 클리닉과 백화점은 물론, 미국·일본·유럽·동남아 등 전 세계 18개국 바이어를 통해 글로벌 반려가구 식탁에 오르고 있습니다.",
+    exportStatus: "Export Destinations & Volume",
+    exportTitle: "전 세계 수출 네트워크 현황",
+    exportUSA: "가루쌀 기반 알러지 안심 주식 및 기능성 관절 포뮬러 주력 수출 (연 180톤)",
+    exportJPN: "고양이 요로계/신장 케어 완도 해조류 캔 및 고려 인삼 노령견 트릿 인기",
+    exportSEA: "K-컬처 프리미엄 브랜드샵 및 대형 펫전문 메디컬 센터 독점 공급",
+    exportEU: "100% 비건 유기농 채소 트릿 & 가루쌀 처방식 사료 샘플 수출",
+    domTitle: "대한민국 내수 유통 현황",
+    domSub: "전국 450여 개 전문 채널 공급",
+    domItem1: "서울·수도권: 강남·분당 소재 대형 동물 2차 메디컬 센터 70여 곳 처방식 공급",
+    domItem2: "백화점 & 프리미엄 몰: 현대백화점 루이독, 갤러리아 프리미엄 펫존 공식 입점",
+    domItem3: "영남 & 호남 & 충청권: 지역 특산 농가와 연계한 로컬 푸드 직배송 및 플래그십 스토어",
+    buyerBoxTitle: "해외 수입 및 독점 유통권 상담",
+    buyerBoxDesc: "국가별 검역 조건에 맞춘 맞춤형 라벨링, 영문 성분 분석표, OEM/ODM 개발 및 FCL/LCL 컨테이너 선적 스케줄을 전문 수출팀이 1:1로 지원합니다.",
+    btnConsultBuyer: "국가별 바이어 견적 문의하기",
+
+    // Section 7: CSR
+    csrPre: "GIVING BACK TO COMPANIONS",
+    csrTitle: "생명을 살리는 K-Petfood의 따뜻한 나눔",
+    csrDesc: "K-Petfood는 모든 제품 판매금액의 2.5%를 사회적 취약계층 반려가구 지원과 유기동물 보호소 완제품 기부 펀드로 자동 적립합니다.",
+    csr1Title: "판매금액의 2.5% 기부 적립",
+    csr1Desc: "바이어와 고객이 구매하는 모든 제품의 매출액 중 2.5%를 기금으로 조성하여 경제적 어려움으로 치료나 사료 구입이 힘든 독거노인 및 기초수급 가구의 반려동물에게 무상 전달합니다.",
+    csr2Title: "전국 유기견/유기묘 센터 정기 기부",
+    csr2Desc: "농림축산식품부 등록 전국 12개 비영리 사설/직영 유기동물 보호센터에 매월 1,500kg의 신선한 정품 사료를 직접 배송하여 영양실조와 질병을 예방합니다.",
+    csr3Title: "입양 축하 키트 지원",
+    csr3Desc: "보호소에서 새로운 가족을 만난 입양 반려견·반려묘에게 3개월치 가루쌀 건강식 주식과 영양 간식, 수의사 건강 가이드북으로 구성된 웰컴 패키지를 전액 무료 제공합니다.",
+    csrLiveTag: "Cumulative Social Impact Tracker",
+    csrLiveTitle: "실시간 누적 사회적 기여 현황",
+    csrStat1Label: "누적 기부 사료 (kg)",
+    csrStat1Sub: "약 240,000끼 식사 지원",
+    csrStat2Label: "도움받은 보호소 동물",
+    csrStat2Sub: "전국 12개 보호센터 연계",
+    csrStat3Label: "취약계층 반려가구 지원",
+    csrStat3Sub: "정기 케어 박스 배송",
+
+    // CTA
+    ctaTitle: "대한민국 공인 프리미엄 펫푸드를 여러분의 국가에 런칭하세요",
+    ctaDesc: "샘플 발송, MOQ 견적, 성분표 및 수출 검역 증명서 발급까지 K-Petfood 글로벌 비즈니스 전담팀이 신속히 안내해 드립니다.",
+    ctaBtnInquiry: "해외 바이어 수출 상담 신청",
+    ctaBtnCatalog: "2026 영문 제품 카탈로그 다운로드",
+
+    // Footer & Modal
+    footerAbout: "K-Petfood는 대한민국 청정 자연의 원재료와 스마트 바이오 기술을 결합하여 전 세계 반려동물과 보호자에게 가장 신뢰받는 영양 솔루션을 제공하는 글로벌 펫케어 전문 기업입니다.",
+    footerNavTitle: "주요 메뉴",
+    footerContactTitle: "글로벌 바이어 데스크",
+    modalBuyerTitle: "해외 바이어 수출 및 견적 상담",
+    modalBuyerDesc: "수입 희망 국가, 관심 제품군, 예상 수입 물량을 남겨주시면 24시간 내 전문 수출 매니저가 연락드립니다.",
+    formName: "담당자 성명 (Name) *",
+    formCompany: "회사명 (Company) *",
+    formEmail: "업무용 이메일 (Work Email) *",
+    formCountry: "수입 희망 국가 (Country) *",
+    formCategory: "관심 제품군 (Interested Lineup) *",
+    formVolume: "예상 발주 규모 및 문의 내용 (Message) *",
+    btnSubmitBuyer: "상담 신청서 제출하기"
+  },
+
+  en: {
+    topBannerText: "Korean Gov. Certified · Smart HACCP Clean Facility · Exporting to 18 Countries",
+    topBannerQuality: "100% Human-Grade Formula",
+    topBannerESG: "2.5% of Sales Donated to Shelters",
+    logoSub: "Premium Pet Nutrition Born from Korea's Pure Nature",
+    navNature: "Clean Nature",
+    navCert: "Gov. Certification & Plant",
+    navIngredients: "K-Specialties",
+    navTrace: "Traceability Lookup",
+    navProducts: "Product Lineup",
+    navGlobal: "Global Footprint",
+    navCSR: "Social Contribution",
+    btnBuyerInquiry: "Buyer Inquiry",
+
+    // Hero & Mockup Design
+    mockupLabel: "Discover",
+    mockupTitle: "Freshness",
+    mockupDesc: "Explore a vibrant harvest of organic, seasonal fruits and vegetables, bursting with flavors. Unveil a paramount selection of naturally delicious and nutritious premium produce sourced directly from local Korean farms!",
+    mockupBtnShop: "Shop Now",
+    heroBadge: "Officially Certified by Ministry of Agriculture, Republic of Korea",
+    heroTitleSub: "Nurtured in Harmony with Nature,",
+    heroTitleMain: "Officially Certified K-Premium Petfood",
+    heroDesc: "Harvested with devotion from honest Korean farmers and fishermen: Milled Rice Flour, 6-Year Red Ginseng, Clean Marine Kelp, Gangwon Potatoes, and Haenam Sweet Potatoes. Processed in Smart HACCP facilities to deliver pure nutrition to global companions.",
+    heroCoexistTitle: "Human & Companion Animal Coexistence (One Health)",
+    heroCoexistSub: "We only use 100% human-grade ingredients that humans can safely consume to protect pet lifelong vitality.",
+    heroBtnExplore: "Explore Products",
+    heroBtnTrace: "Test Batch Traceability",
+    badge1Title: "Gov. Approved",
+    badge1Sub: "Korean Ministry (MAFRA)",
+    badge2Title: "100% K-Ingredients",
+    badge2Sub: "Rice Flour & Ginseng & Kelp",
+    badge3Title: "Smart HACCP",
+    badge3Sub: "Cleanroom Sterilization",
+    badge4Title: "Exported to 18+",
+    badge4Sub: "Global Veterinary Standard",
+    heroCardSubtitle: "K-Petfood Certification Summary",
+    heroCardTitle: "Official Korean Export Quality Certificate",
+    metric1Label: "Ingredient Traceability",
+    metric1Sub: "Farm Harvest to Packaging Date",
+    metric2Label: "Gluten-Free Formula",
+    metric2Sub: "Based on Korean Powdered Rice",
+    metric3Label: "Organic Ingredient Ratio",
+    metric3Sub: "Eco-Agricultural Certified",
+    metric4Label: "Shelter Food Donated",
+    metric4Sub: "2.5% of Revenue Matched",
+    heroQuickTrace: "Instant Lot Number Verification",
+    btnSearch: "Verify",
+
+    // Section 1: Nature
+    naturePre: "ORIGIN & PURITY",
+    natureTitle: "Korea's Pure Nature Across Four Distinct Seasons",
+    natureDesc: "Surrounded by untouched mountains, UNESCO biosphere reserves, and pristine marine zones. K-Petfood requires zero artificial chemicals thanks to the natural vitality of the Korean terroir.",
+    natureCard1Title: "Four Distinct Seasons & Fertile Clay",
+    natureCard1Desc: "Great diurnal temperature variations and over 2,200 hours of natural sunshine concentrate essential vitamins and minerals in our crops with strictly zero heavy pesticide residues.",
+    natureCard2Title: "Wando Island's Elvan Stone Marine Waters",
+    natureCard2Desc: "Kelp and seaweeds naturally filtered through underwater elvan rock beds provide abundant Omega-3, Fucoidan, and sea minerals to boost pet skin hydration and immune defense.",
+    natureCard3Title: "Natural Mineral Groundwater from Mt. Jiri",
+    natureCard3Desc: "Our production uses pure alkaline drinking water (pH 7.4) sourced from 300m granite aquifers, ensuring superior digestive absorption and renal health protection.",
+
+    // Section 2: Certification
+    certBadge: "Republic of Korea Official Endorsement",
+    certTitle: "Rigorous Government Standards & High-Tech Facilities",
+    certDesc: "K-Petfood has passed 150+ hazardous substance clearance inspections administered by Korean national testing bodies. Formulated to meet 100% of US AAFCO and European FEDIAF nutritional profiles.",
+    certItem1Title: "Official Gov. Quality Guarantee",
+    certItem1Sub: "Ministry of Agriculture (MAFRA)",
+    certItem2Title: "Certified Smart HACCP",
+    certItem2Sub: "IoT Live Sanitation Monitoring",
+    certItem3Title: "Organic Food Processing Mark",
+    certItem3Sub: "National Quality Management",
+    certItem4Title: "ISO 22000 & US FDA Registered",
+    certItem4Sub: "Export Quarantine Cleared",
+    plantTag: "Smart Bio-Pet Plant",
+    plantName: "Osong Bio-Pet High-Tech Plant No. 1",
+    plantLocationTitle: "Plant Location",
+    plantLocationDesc: "Osong Bio-Valley Cluster, Cheongju, Chungbuk, Republic of Korea",
+    plantCleanTitle: "Cleanroom Class 1,000 Environment",
+    plantCleanDesc: "Semiconductor-grade 3-stage HEPA filtration and full-body air shower systems",
+    plantTechTitle: "3D X-Ray Inspection & Vacuum Freeze-Drying",
+    plantTechDesc: "0.1mm foreign matter elimination and low-temperature drying preserving 99% of native nutrients",
+    plantCapacityLabel: "Monthly Production Capacity",
+    btnFactoryAudit: "Request Factory Audit Report",
+
+    // Section 3: Ingredients
+    ingPre: "REGIONAL SPECIALTIES",
+    ingTitle: "Korea's Premium Regional Specialty Ingredients",
+    ingDesc: "Carefully sourced across the nation: Milled Rice Flour, Wando Seaweeds, Korean Red Ginseng, Sweet Potatoes, Alpine Potatoes, and 100% Certified Organic Vegetables.",
+    ing1Region: "Haenam & Iksan, Korea",
+    tagGlutenFree: "100% Gluten-Free",
+    ing1Name: "Korean Milled Rice Flour (K-Garu-Ssal)",
+    ing1Desc: "Bred by the Rural Development Administration. Highly digestible with undamaged starch granules, boosting intestinal nutrient absorption up to 98% for sensitive stomachs.",
+    ing1Benefit: "Anti-allergy & High Digestibility",
+    ing2Region: "Wando Clean Coastal Zone",
+    tagMarine: "Natural Omega-3 & Fucoidan",
+    ing2Name: "Wando Kelp & Seaweed Extract",
+    ing2Desc: "Harvested from clear reef zones. Rich in Fucoidan, natural iodine, and marine minerals that rejuvenate dull coats and enhance pet cellular immunity.",
+    ing2Benefit: "Glossy Coat & Immune Booster",
+    ing3Region: "Geumsan & Punggi, Korea",
+    tagGinseng: "Rich in Ginsenosides",
+    ing3Name: "6-Year-Old Korean Red Ginseng",
+    ing3Desc: "Fermented low-molecular saponin formula customized for pets. Reinvigorates senior dogs and cats while providing cardio-vascular and cellular defense.",
+    ing3Benefit: "Senior Vitality & Cardiovascular Health",
+    ing4Region: "Haenam & Pyeongchang",
+    tagFiber: "High Dietary Fiber",
+    ing4Name: "Haenam Sweet Potato & Gangwon Alpine Potato",
+    ing4Desc: "Rich in pectin and soluble fiber from mineral soils at 700m elevation. Gently regulates glucose spikes and maintains a flourishing gut microbiome.",
+    ing4Benefit: "Healthy Microbiome & Satiety",
+    ing5Region: "Naju & Jeju Island",
+    tagFruit: "Natural Antioxidants",
+    ing5Name: "Naju Pears & Jeju Wild Blueberries",
+    ing5Desc: "Luteolin from Korean pears supports respiratory clarity, while wild anthocyanins from Jeju blueberries protect retinal cells and reduce oxidative stress.",
+    ing5Benefit: "Respiratory Defense & Eye Health",
+    ing6Region: "Buyeo & Yangpyeong",
+    tagVeg: "100% Pesticide-Free Organic",
+    ing6Name: "Organic Pumpkin, Carrots & Broccoli",
+    ing6Desc: "Fresh Korean certified organic vegetables grown without synthetic chemicals. Natural beta-carotene and sulforaphane prevent kidney/urinary stone formation.",
+    ing6Benefit: "Cellular Detox & Urinary Protection",
+
+    // Section 4: Traceability
+    traceBadge: "End-to-End Batch Transparency",
+    traceTitle: "From Soil to Bowl: Real-Time Batch Traceability",
+    traceDesc: "Enter the unique batch (Lot) code printed on your product package to immediately view harvest date, origin farm, pesticide-free lab results, and final cleanroom manufacturing date.",
+    traceSamplePrompt: "Click to test sample batch codes:",
+    btnRunTrace: "Verify Batch",
+
+    // Section 5: Products
+    prodPre: "PRODUCT SHOWCASE",
+    prodTitle: "Customized Nutritional Lineup for Pets",
+    prodDesc: "Segmented by dog and cat life stages into daily complete meals, natural training treats, and functional clinical care diets.",
+    filterAll: "All Species",
+    filterDog: "Dogs Only",
+    filterCat: "Cats Only",
+    catTabAll: "All Categories",
+    catTabMeal: "🍚 1. Complete Meals",
+    catTabTreat: "🥕 2. Natural Treats",
+    catTabHealth: "🩺 3. Functional Care Diets",
+
+    // Section 6: Global
+    globalPre: "GLOBAL FOOTPRINT",
+    globalTitle: "Loved in Korea, Trusted Across the Globe",
+    globalDesc: "Distributed to over 450 veterinary clinics and luxury department stores in Korea, and exported to 18 global markets including the US, Japan, Europe, and SE Asia.",
+    exportStatus: "Export Destinations & Volume",
+    exportTitle: "Global Export Network",
+    exportUSA: "Mainstay export of Rice-flour allergy meals & functional joint formulas (180 MT/year)",
+    exportJPN: "High demand for Wando seaweed feline urinary cans & Korean ginseng senior treats",
+    exportSEA: "Exclusive supply to premium K-brand retail hubs and veterinary specialty clinics",
+    exportEU: "Clean vegan vegetable treats & hypoallergenic prescription formula samples",
+    domTitle: "Domestic Korean Distribution",
+    domSub: "Supplying 450+ specialized veterinary channels",
+    domItem1: "Seoul Metro: Supplying 70+ secondary animal hospitals in Gangnam and Bundang",
+    domItem2: "Luxury Retail: Official partner at Hyundai Dept. Store Louisdog & Galleria Pet Zone",
+    domItem3: "Regional Hubs: Direct farm-to-door distribution and flagship lifestyle showrooms",
+    buyerBoxTitle: "Inquire for Exclusive Distribution Rights",
+    buyerBoxDesc: "Our dedicated export division provides country-specific labeling, English COA documents, OEM/ODM development, and container freight schedules.",
+    btnConsultBuyer: "Request Country-Specific Quote",
+
+    // Section 7: CSR
+    csrPre: "GIVING BACK TO COMPANIONS",
+    csrTitle: "Saving Lives Through Warm Social Impact",
+    csrDesc: "K-Petfood automatically matches 2.5% of total sales towards vulnerable elderly pet households and regular finished food donations to animal rescue centers.",
+    csr1Title: "2.5% of Sales Donated",
+    csr1Desc: "Every order contributes to our companion animal relief fund, delivering free nutrition to solitary seniors and low-income families with pets.",
+    csr2Title: "Monthly Delivery to 12 Shelters",
+    csr2Desc: "Delivering 1,500 kg of fresh, human-grade food every month directly to 12 registered rescue centers nationwide to prevent malnutrition.",
+    csr3Title: "Shelter Adoption Welcome Kits",
+    csr3Desc: "Providing adoptive families with a 3-month supply of hypoallergenic rice-flour meals, treats, and veterinary guidebooks completely free.",
+    csrLiveTag: "Cumulative Social Impact Tracker",
+    csrLiveTitle: "Live Cumulative Impact Report",
+    csrStat1Label: "Total Food Donated (kg)",
+    csrStat1Sub: "Approx. 240,000 meals provided",
+    csrStat2Label: "Shelter Animals Helped",
+    csrStat2Sub: "Partnered with 12 shelters",
+    csrStat3Label: "Vulnerable Homes Supported",
+    csrStat3Sub: "Regular care packages shipped",
+
+    // CTA
+    ctaTitle: "Bring Korea's Certified Premium Petfood to Your Market",
+    ctaDesc: "From custom sample shipments and MOQ pricing to phytosanitary certificates, our global trade specialists are ready to assist you.",
+    ctaBtnInquiry: "Submit Buyer Inquiry",
+    ctaBtnCatalog: "Download 2026 English Catalog",
+
+    // Footer & Modal
+    footerAbout: "K-Petfood is a premier pet health brand combining Korea's clean terroir with advanced bio-technology to deliver verified, science-backed nutrition to companions worldwide.",
+    footerNavTitle: "Quick Navigation",
+    footerContactTitle: "Global Buyer Desk",
+    modalBuyerTitle: "Overseas Buyer Export & Quotation Inquiry",
+    modalBuyerDesc: "Tell us your target country, products of interest, and volume. Our export team will respond within 24 hours.",
+    formName: "Full Name *",
+    formCompany: "Company Name *",
+    formEmail: "Work Email *",
+    formCountry: "Destination Country *",
+    formCategory: "Interested Lineup *",
+    formVolume: "Estimated Order Volume & Notes *",
+    btnSubmitBuyer: "Submit Export Inquiry"
+  }
+};
+
+// -------------------------------------------------------------
+// 2. Product Catalog Database (Dog & Cat / Meals, Treats, Functional)
+// -------------------------------------------------------------
+const productsData = [
+  // DOG MEALS
+  {
+    id: "dog-meal-01",
+    species: "dog",
+    category: "meal",
+    nameKo: "K-가루쌀 & 지리산 오리 소프트 키블",
+    nameEn: "K-Rice Flour & Jiri Duck Soft Kibble",
+    tagKo: "주식 / 전연령견용",
+    tagEn: "Complete Meal / All Life Stages",
+    badgeKo: "정부공인 · 글루텐프리",
+    badgeEn: "Gov.Certified · Gluten-Free",
+    ingredientsKo: "국산 가루쌀(32%), 지리산 무항생제 오리고기(45%), 완도 다시마, 유기농 당근",
+    ingredientsEn: "Korean Milled Rice Flour (32%), Antibiotic-free Duck (45%), Wando Kelp, Organic Carrots",
+    protein: "28.5%",
+    fat: "14.0%",
+    kcal: "3,750 kcal/kg",
+    descKo: "밀가루와 옥수수를 전혀 쓰지 않고 국산 가루쌀로 소화 흡수율을 극대화한 저알러지 주식입니다.",
+    descEn: "Hypoallergenic complete meal replacing wheat and corn with Korean rice flour for 98% digestibility.",
+    batchCode: "KPF-2026-DOG01",
+    color: "emerald"
+  },
+  {
+    id: "dog-meal-02",
+    species: "dog",
+    category: "meal",
+    nameKo: "강원 고랭지 감자 & 제주 흑돼지 동결건조식",
+    nameEn: "Gangwon Potato & Jeju Pork Freeze-Dried",
+    tagKo: "주식 / 프리미엄 생식 대체",
+    tagEn: "Complete Meal / Raw-Alternative",
+    badgeKo: "영하 40도 동결건조",
+    badgeEn: "Sub-Zero Freeze-Dried",
+    ingredientsKo: "제주 흑돼지(55%), 강원 고랭지 감자(20%), 해남 꿀고구마, 유기농 브로콜리",
+    ingredientsEn: "Jeju Pork (55%), Gangwon Alpine Potato (20%), Haenam Sweet Potato, Organic Broccoli",
+    protein: "34.0%",
+    fat: "16.5%",
+    kcal: "4,100 kcal/kg",
+    descKo: "원재료의 단백질과 비타민을 99% 보존하는 첨단 진공 동결건조 공법으로 제조한 프리미엄 주식입니다.",
+    descEn: "High-nutrient raw alternative manufactured with advanced aerospace vacuum freeze-drying.",
+    batchCode: "KPF-2026-DOG02",
+    color: "amber"
+  },
+
+  // DOG TREATS
+  {
+    id: "dog-treat-01",
+    species: "dog",
+    category: "treat",
+    nameKo: "금산 6년근 인삼 & 나주 배 면역 덴탈 츄",
+    nameEn: "Geumsan Ginseng & Naju Pear Dental Chew",
+    tagKo: "영양 간식 / 구강 & 면역",
+    tagEn: "Natural Treat / Dental & Immunity",
+    badgeKo: "고려인삼 발효 사포닌",
+    badgeEn: "Fermented Ginsenosides",
+    ingredientsKo: "발효 고려인삼 농축액(5%), 나주 배 퓨레(15%), K-가루쌀, 해조 칼슘",
+    ingredientsEn: "Fermented Ginseng Extract (5%), Naju Pear Puree (15%), Rice Flour, Seaweed Calcium",
+    protein: "18.0%",
+    fat: "4.5%",
+    kcal: "3,100 kcal/kg",
+    descKo: "치석 억제 구조의 3D 덴탈 스틱에 금산 인삼의 사포닌과 나주 배의 루테올린을 담았습니다.",
+    descEn: "Proprietary 3D tartar-scraping matrix enriched with Korean red ginseng saponins and pear extract.",
+    batchCode: "KPF-2026-TREAT05",
+    color: "rose"
+  },
+  {
+    id: "dog-treat-02",
+    species: "dog",
+    category: "treat",
+    nameKo: "해남 꿀고구마 & 완도 해조류 소프트 트릿",
+    nameEn: "Haenam Sweet Potato & Wando Kelp Soft Bites",
+    tagKo: "영양 간식 / 장건강 & 피모",
+    tagEn: "Natural Treat / Gut & Coat",
+    badgeKo: "100% 무농약 원료",
+    badgeEn: "100% Pesticide-Free",
+    ingredientsKo: "해남 고구마(40%), 완도 미역 분말(10%), 닭가슴살, 식물성 글리세린",
+    ingredientsEn: "Haenam Sweet Potato (40%), Wando Kelp Powder (10%), Chicken Breast",
+    protein: "14.5%",
+    fat: "3.2%",
+    kcal: "2,950 kcal/kg",
+    descKo: "풍부한 식이섬유로 장내 유익균을 촉진하고 해조류 오메가-3로 윤기 있는 털을 가꿔줍니다.",
+    descEn: "Rich in dietary fiber and marine omega-3 to support gut flora and lustrous coat texture.",
+    batchCode: "KPF-2026-TREAT06",
+    color: "orange"
+  },
+
+  // DOG FUNCTIONAL / HEALTH
+  {
+    id: "dog-health-01",
+    species: "dog",
+    category: "health",
+    nameKo: "K-가루쌀 & 통영 초록입홍합 관절 케어 포뮬러",
+    nameEn: "K-Rice Flour & Green Mussel Joint Care",
+    tagKo: "기능성 건강식 / 관절 & 슬개골",
+    tagEn: "Functional Diet / Joint & Patella",
+    badgeKo: "글루코사민 1,200mg/kg",
+    badgeEn: "Glucosamine 1,200mg/kg",
+    ingredientsKo: "가루쌀(30%), 남해 초록입홍합(12%), 보스웰리아, 저분자 콜라겐, 가수분해 연어",
+    ingredientsEn: "Rice Flour (30%), Green Lipped Mussel (12%), Boswellia, Marine Collagen",
+    protein: "26.0%",
+    fat: "12.0%",
+    kcal: "3,580 kcal/kg",
+    descKo: "슬개골 탈구와 관절염 위험이 높은 소형견 및 노령견을 위한 천연 항염 관절 특화 건강식입니다.",
+    descEn: "Formulated specifically for small breeds prone to patellar luxation and senior osteoarthritis.",
+    batchCode: "KPF-2026-DOG03",
+    color: "sky"
+  },
+  {
+    id: "dog-health-02",
+    species: "dog",
+    category: "health",
+    nameKo: "유기농 단호박 & 인삼 장/알러지 릴리프 다이어트",
+    nameEn: "Organic Pumpkin & Ginseng Gastro-Allergy Diet",
+    tagKo: "기능성 건강식 / 소화기 & 식이알러지",
+    tagEn: "Functional Diet / Gastro & Hypoallergenic",
+    badgeKo: "단일 단백질 (LID)",
+    badgeEn: "Single Protein (LID)",
+    ingredientsKo: "유기농 단호박(25%), 고려인삼 추출물, 가수분해 오리단백, 차전자피 식이섬유",
+    ingredientsEn: "Organic Pumpkin (25%), Ginseng Extract, Hydrolyzed Duck Protein, Psyllium Husk",
+    protein: "24.5%",
+    fat: "10.5%",
+    kcal: "3,450 kcal/kg",
+    descKo: "만성 설사와 식이 알러지로 고생하는 반려견의 장벽을 강화하는 수의사 영양학 처방 설계.",
+    descEn: "Veterinary-guided formula restoring intestinal mucosal barriers in dogs with recurrent enteritis.",
+    batchCode: "KPF-2026-DOG04",
+    color: "emerald"
+  },
+
+  // CAT MEALS
+  {
+    id: "cat-meal-01",
+    species: "cat",
+    category: "meal",
+    nameKo: "남해 연어 & 완도 다시마 헤어볼 안심 키블",
+    nameEn: "Namhae Salmon & Wando Kelp Hairball Kibble",
+    tagKo: "주식 / 전연령 고양이",
+    tagEn: "Complete Meal / All Cats",
+    badgeKo: "타우린 0.25% & 오메가3",
+    badgeEn: "Taurine 0.25% & Omega-3",
+    ingredientsKo: "남해 생연어(42%), 완도 다시마(8%), K-가루쌀(15%), 천연 셀룰로오스",
+    ingredientsEn: "Fresh Salmon (42%), Wando Kelp (8%), Rice Flour (15%), Natural Cellulose",
+    protein: "38.0%",
+    fat: "18.0%",
+    kcal: "3,950 kcal/kg",
+    descKo: "육식동물 고양이의 생리학적 요구에 맞춘 고단백 포뮬러에 완도 다시마의 천연 섬유질을 결합했습니다.",
+    descEn: "High-protein carnivore formula combining ocean-caught salmon with prebiotic kelp fiber.",
+    batchCode: "KPF-2026-CAT01",
+    color: "sky"
+  },
+  {
+    id: "cat-meal-02",
+    species: "cat",
+    category: "meal",
+    nameKo: "제주 무항생제 닭가슴살 & 가루쌀 주식 무스 파테",
+    nameEn: "Jeju Chicken & Rice Flour Complete Mousse Pate",
+    tagKo: "주식 / 수분 보충 습식 캔",
+    tagEn: "Complete Wet Meal / Hydration Can",
+    badgeKo: "수분 함량 82%",
+    badgeEn: "Moisture 82%",
+    ingredientsKo: "제주 닭가슴살(60%), 닭간, 가루쌀 전분(3%), 완도 톳 미네랄, 타우린",
+    ingredientsEn: "Jeju Chicken Breast (60%), Chicken Liver, Rice Flour Starch (3%), Taurine",
+    protein: "11.5% (수분기준)",
+    fat: "6.0%",
+    kcal: "92 kcal/can (85g)",
+    descKo: "음수량이 부족한 고양이의 신장 결석 예방을 위해 완벽한 수분을 공급하는 주식 습식 캔입니다.",
+    descEn: "Complete hydrating wet food formulated to prevent feline dehydration and idiopathic cystitis.",
+    batchCode: "KPF-2026-CAT02",
+    color: "amber"
+  },
+
+  // CAT TREATS
+  {
+    id: "cat-treat-01",
+    species: "cat",
+    category: "treat",
+    nameKo: "완도 미역 & 동결건조 명태 퓨레 스틱",
+    nameEn: "Wando Seaweed & Freeze-Dried Pollock Puree",
+    tagKo: "영양 간식 / 짜먹는 퓨레",
+    tagEn: "Natural Treat / Lickable Puree",
+    badgeKo: "합성보존제 0%",
+    badgeEn: "Zero Artificial Additives",
+    ingredientsKo: "동해 명태(50%), 완도 미역 추출물(5%), 나주 배 농축액, 비타민E",
+    ingredientsEn: "East Sea Pollock (50%), Wando Seaweed (5%), Naju Pear, Vitamin E",
+    protein: "9.0%",
+    fat: "1.2%",
+    kcal: "12 kcal/tube (14g)",
+    descKo: "신선한 원양 명태와 완도 미역으로 만든 고양이 최애 영양 간식으로 기호성이 뛰어납니다.",
+    descEn: "Ultra-palatable lickable puree made with wild pollock and coastal seaweed minerals.",
+    batchCode: "KPF-2026-TREAT07",
+    color: "rose"
+  },
+
+  // CAT FUNCTIONAL / HEALTH
+  {
+    id: "cat-health-01",
+    species: "cat",
+    category: "health",
+    nameKo: "제주 크랜베리 & 완도 해조류 FLUTD 요로계 케어",
+    nameEn: "Jeju Cranberry & Seaweed FLUTD Urinary Care",
+    tagKo: "기능성 건강식 / 요로 결석 & 방광염",
+    tagEn: "Functional Diet / Urinary & FLUTD",
+    badgeKo: "요 pH 6.2~6.4 제어",
+    badgeEn: "Urine pH 6.2~6.4 Control",
+    ingredientsKo: "제주 크랜베리 추출물, 완도 다시마 분말, 저마그네슘 가금육, K-가루쌀, DL-메티오닌",
+    ingredientsEn: "Jeju Cranberry, Wando Kelp, Low-Magnesium Poultry, Rice Flour, DL-Methionine",
+    protein: "32.0%",
+    fat: "15.0%",
+    kcal: "3,720 kcal/kg",
+    descKo: "스트루바이트 결석 용해와 슬러지 배출을 촉진하는 마그네슘·인 정밀 제어 임상 영양식.",
+    descEn: "Clinically engineered to dissolve struvite stones with targeted dietary magnesium and ion control.",
+    batchCode: "KPF-2026-CAT03",
+    color: "emerald"
+  },
+  {
+    id: "cat-health-02",
+    species: "cat",
+    category: "health",
+    nameKo: "저인(Low-P) & 고려인삼 노령묘 신장 서포트",
+    nameEn: "Low-Phosphorus & Ginseng Feline Renal Care",
+    tagKo: "기능성 건강식 / 신부전 & 노령묘",
+    tagEn: "Functional Diet / Renal & Senior",
+    badgeKo: "인(P) 0.42% 엄격 제한",
+    badgeEn: "Strict Low Phosphorus 0.42%",
+    ingredientsKo: "가수분해 흰살생선, 고려인삼 진세노사이드, 해남 고구마 전분, 오메가3 EPA/DHA",
+    ingredientsEn: "Hydrolyzed White Fish, Korean Ginseng Saponins, Haenam Sweet Potato, EPA/DHA",
+    protein: "27.0%",
+    fat: "19.0%",
+    kcal: "4,020 kcal/kg",
+    descKo: "만성 신장 질환(CKD)을 앓는 고양이의 신장 부담을 덜어주는 저단백·저인·고칼로리 특화식.",
+    descEn: "Low-phosphorus, high-calorie renal nutrition designed to minimize nitrogenous toxic load.",
+    batchCode: "KPF-2026-CAT04",
+    color: "indigo"
+  }
+];
+
+// -------------------------------------------------------------
+// 3. Traceability Batch Database
+// -------------------------------------------------------------
+const batchRecords = {
+  "KPF-2026-DOG01": {
+    productNameKo: "K-가루쌀 & 지리산 오리 소프트 키블 (1.8kg)",
+    productNameEn: "K-Rice Flour & Jiri Duck Soft Kibble (1.8kg)",
+    harvestDate: "2026. 08. 14",
+    harvestLocationKo: "전남 해남군 삼산면 가루쌀 특화단지 제4농가",
+    harvestLocationEn: "Farm No. 4, Haenam Rice Flour Cluster, Jeonnam, Korea",
+    rawInspectionKo: "충북 오송 제1공장 입고 품질검사 완료 (농약 320종 불검출)",
+    rawInspectionEn: "Osong Plant Raw Inspection Passed (0/320 Pesticides Cleared)",
+    factoryDate: "2026. 09. 02 14:30 KST",
+    plantLineKo: "오송 스마트 제1공장 클린룸 3호 멸균 라인",
+    plantLineEn: "Cleanroom Line #3, Osong Smart Plant No. 1",
+    organicCertNo: "제12-1-840호 (국립농산물품질관리원)",
+    bestBefore: "2027. 09. 01 (18개월)",
+    status: "Verified & Export Approved"
+  },
+  "KPF-2026-CAT03": {
+    productNameKo: "제주 크랜베리 & 완도 해조류 FLUTD 요로계 케어 (1.5kg)",
+    productNameEn: "Jeju Cranberry & Seaweed FLUTD Urinary Care (1.5kg)",
+    harvestDate: "2026. 08. 20",
+    harvestLocationKo: "전남 완도군 청산도 청정해역 맥반석 3구역 & 제주 서귀포",
+    harvestLocationEn: "Reef Area #3, Cheongsan-do, Wando & Seogwipo, Jeju",
+    rawInspectionKo: "해양수산 중금속 및 요오드 정밀검사 통과 (납, 카드뮴 불검출)",
+    rawInspectionEn: "Marine Heavy Metal Inspection Cleared (Lead & Cadmium 0.0ppm)",
+    factoryDate: "2026. 09. 10 09:15 KST",
+    plantLineKo: "오송 스마트 제1공장 pH 정밀 배합 2호 라인",
+    plantLineEn: "Precision pH Formulation Line #2, Osong Smart Plant",
+    organicCertNo: "제2026-완도수산-091호",
+    bestBefore: "2027. 09. 09 (18개월)",
+    status: "Verified & Export Approved"
+  },
+  "KPF-2026-TREAT05": {
+    productNameKo: "금산 6년근 인삼 & 나주 배 면역 덴탈 츄 (250g)",
+    productNameEn: "Geumsan Ginseng & Naju Pear Dental Chew (250g)",
+    harvestDate: "2026. 07. 28",
+    harvestLocationKo: "충남 금산군 제원면 6년근 인삼 계약재배지 & 전남 나주",
+    harvestLocationEn: "Geumsan Ginseng Contracted Farm & Naju Pear Orchards",
+    rawInspectionKo: "진세노사이드(Rg1+Rb1+Rg3) 기준치 140% 충족 검증",
+    rawInspectionEn: "Ginsenoside Purity Verified at 140% Standard Threshold",
+    factoryDate: "2026. 08. 19 16:00 KST",
+    plantLineKo: "오송 스마트 제1공장 저온 성형 덴탈 라인",
+    plantLineEn: "Low-Temp Cold Extrusion Line #1, Osong Smart Plant",
+    organicCertNo: "GAP 우수농산물 제104-0982호",
+    bestBefore: "2027. 08. 18 (18개월)",
+    status: "Verified & Export Approved"
+  }
+};
+
+// -------------------------------------------------------------
+// 4. Initialization on Load
+// -------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  renderProducts();
+  executeBatchSearch(); // Render default trace box
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+});
+
+// -------------------------------------------------------------
+// 5. Language Switching Functionality
+// -------------------------------------------------------------
+function toggleLanguage() {
+  currentLang = currentLang === 'ko' ? 'en' : 'ko';
+  updateLanguageUI();
+}
+
+function updateLanguageUI() {
+  const dict = i18n[currentLang];
+
+  // Update texts marked with data-i18n
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+
+  // Update Language Button labels
+  const langCurrent = document.getElementById("langCurrent");
+  const langTarget = document.getElementById("langTarget");
+  if (currentLang === 'ko') {
+    langCurrent.textContent = "한국어";
+    langTarget.textContent = "ENG";
+  } else {
+    langCurrent.textContent = "English";
+    langTarget.textContent = "한국어";
+  }
+
+  // Re-render dynamic elements
+  renderProducts();
+  executeBatchSearch();
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+// -------------------------------------------------------------
+// 6. Product Filtering and Rendering
+// -------------------------------------------------------------
+function filterSpecies(species) {
+  activeSpecies = species;
+  
+  // Update button visual styles
+  const btnAll = document.getElementById("btnSpeciesAll");
+  const btnDog = document.getElementById("btnSpeciesDog");
+  const btnCat = document.getElementById("btnSpeciesCat");
+
+  [btnAll, btnDog, btnCat].forEach(btn => {
+    btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-brand-600 flex items-center gap-1.5";
+  });
+
+  if (species === 'all') {
+    btnAll.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-deep text-white shadow";
+  } else if (species === 'dog') {
+    btnDog.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-deep text-white shadow flex items-center gap-1.5";
+  } else if (species === 'cat') {
+    btnCat.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-deep text-white shadow flex items-center gap-1.5";
+  }
+
+  renderProducts();
+}
+
+function filterCategory(cat) {
+  activeCategory = cat;
+  
+  const buttons = {
+    all: document.getElementById("btnCatAll"),
+    meal: document.getElementById("btnCatMeal"),
+    treat: document.getElementById("btnCatTreat"),
+    health: document.getElementById("btnCatHealth")
+  };
+
+  Object.keys(buttons).forEach(k => {
+    buttons[k].className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-slate-600 border border-slate-200 hover:border-brand-500";
+  });
+
+  buttons[cat].className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-white shadow";
+
+  renderProducts();
+}
+
+function renderProducts() {
+  const container = document.getElementById("productGrid");
+  if (!container) return;
+
+  const filtered = productsData.filter(item => {
+    const matchSpecies = (activeSpecies === 'all') || (item.species === activeSpecies);
+    const matchCategory = (activeCategory === 'all') || (item.category === activeCategory);
+    return matchSpecies && matchCategory;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-16 text-center text-slate-400">
+        <i data-lucide="package-search" class="w-12 h-12 mx-auto mb-3 text-slate-300"></i>
+        <p class="text-sm font-semibold">${currentLang === 'ko' ? '해당 조건에 일치하는 제품이 없습니다.' : 'No products found matching the criteria.'}</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => {
+    const name = currentLang === 'ko' ? item.nameKo : item.nameEn;
+    const tag = currentLang === 'ko' ? item.tagKo : item.tagEn;
+    const badge = currentLang === 'ko' ? item.badgeKo : item.badgeEn;
+    const ingredients = currentLang === 'ko' ? item.ingredientsKo : item.ingredientsEn;
+    const desc = currentLang === 'ko' ? item.descKo : item.descEn;
+    const speciesLabel = item.species === 'dog' ? '🐶 Dog' : '🐱 Cat';
+
+    return `
+      <div class="bg-white rounded-3xl border border-slate-200/90 hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+        
+        <!-- Card Top Bar with Badges -->
+        <div class="p-6 pb-0">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="px-2.5 py-1 rounded-lg text-[11px] font-black tracking-wide ${item.species === 'dog' ? 'bg-amber-100 text-amber-900' : 'bg-sky-100 text-sky-900'}">
+              ${speciesLabel}
+            </span>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+              ${badge}
+            </span>
+          </div>
+          
+          <div class="text-[11px] font-bold text-brand-600 mb-1 tracking-wider uppercase">${tag}</div>
+          <h3 class="text-lg font-black text-slate-900 leading-snug group-hover:text-brand-700 transition">
+            ${name}
+          </h3>
+          <p class="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+            ${desc}
+          </p>
+        </div>
+
+        <!-- Middle: Key Specs & Regional Ingredients -->
+        <div class="p-6 pt-4 space-y-3">
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-[11px] space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-slate-700">
+              <i data-lucide="leaf" class="w-3.5 h-3.5 text-brand-600"></i>
+              <span>${currentLang === 'ko' ? '핵심 K-특산 원재료' : 'Key K-Ingredients'}</span>
+            </div>
+            <div class="text-slate-600 pl-5 text-[11px] line-clamp-2">
+              ${ingredients}
+            </div>
+          </div>
+
+          <!-- Nutrition Mini Pills -->
+          <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
+            <div class="bg-slate-100/70 p-2 rounded-xl">
+              <span class="text-slate-400 block">${currentLang === 'ko' ? '조단백질' : 'Protein'}</span>
+              <span class="font-bold text-slate-800 font-mono text-xs">${item.protein}</span>
+            </div>
+            <div class="bg-slate-100/70 p-2 rounded-xl">
+              <span class="text-slate-400 block">${currentLang === 'ko' ? '조지방' : 'Crude Fat'}</span>
+              <span class="font-bold text-slate-800 font-mono text-xs">${item.fat}</span>
+            </div>
+            <div class="bg-slate-100/70 p-2 rounded-xl">
+              <span class="text-slate-400 block">${currentLang === 'ko' ? '열량' : 'Energy'}</span>
+              <span class="font-bold text-slate-800 font-mono text-[10px]">${item.kcal}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Bottom Buttons -->
+        <div class="p-6 pt-0 border-t border-slate-100 mt-auto flex items-center justify-between gap-2 pt-4">
+          <button onclick="openProductDetail('${item.id}')" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-brand-deep text-white text-xs font-bold transition flex items-center justify-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>${currentLang === 'ko' ? '상세 스펙 & 성분표' : 'Nutrition & Spec'}</span>
+          </button>
+          <button onclick="openTraceModal('${item.batchCode}')" title="이력 조회" class="p-2.5 rounded-xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50 text-slate-700 transition">
+            <i data-lucide="qr-code" class="w-4 h-4 text-brand-600"></i>
+          </button>
+        </div>
+
+      </div>
+    `;
+  }).join("");
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+// -------------------------------------------------------------
+// 7. Traceability Batch Lookup Engine
+// -------------------------------------------------------------
+function setBatchInput(code) {
+  const input = document.getElementById("batchSearchInput");
+  if (input) {
+    input.value = code;
+    executeBatchSearch();
+  }
+}
+
+function handleHeroBatchLookup() {
+  const heroInput = document.getElementById("heroBatchInput");
+  const code = heroInput ? heroInput.value.trim() : "KPF-2026-DOG01";
+  
+  // Scroll to trace section and execute
+  const traceSec = document.getElementById("traceability");
+  if (traceSec) {
+    traceSec.scrollIntoView({ behavior: 'smooth' });
+  }
+  setBatchInput(code);
+}
+
+function executeBatchSearch() {
+  const input = document.getElementById("batchSearchInput");
+  const display = document.getElementById("traceResultDisplay");
+  if (!input || !display) return;
+
+  const code = input.value.trim().toUpperCase();
+  const data = batchRecords[code];
+
+  if (!data) {
+    display.innerHTML = `
+      <div class="text-center py-6 text-slate-300 space-y-2">
+        <i data-lucide="alert-circle" class="w-8 h-8 mx-auto text-amber-400"></i>
+        <p class="text-xs font-bold">${currentLang === 'ko' ? '입력하신 롯트번호를 찾을 수 없습니다.' : 'Batch code not found in registry.'}</p>
+        <p class="text-[11px] text-slate-400 font-mono">Sample: KPF-2026-DOG01 / KPF-2026-CAT03 / KPF-2026-TREAT05</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  const productName = currentLang === 'ko' ? data.productNameKo : data.productNameEn;
+  const harvestLoc = currentLang === 'ko' ? data.harvestLocationKo : data.harvestLocationEn;
+  const rawInspect = currentLang === 'ko' ? data.rawInspectionKo : data.rawInspectionEn;
+  const plantLine = currentLang === 'ko' ? data.plantLineKo : data.plantLineEn;
+
+  display.innerHTML = `
+    <div class="space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+        <div>
+          <span class="text-[10px] text-emerald-400 font-mono uppercase font-bold tracking-wider">${currentLang === 'ko' ? '인증된 정부 공인 롯트' : 'Verified Batch Registry'}</span>
+          <h4 class="text-base font-bold text-white">${productName}</h4>
+        </div>
+        <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-mono font-bold">
+          LOT #${code}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        
+        <!-- Step 1: Harvest -->
+        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+          <div class="flex items-center gap-1.5 text-amber-300 font-bold mb-1">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>${currentLang === 'ko' ? '1. 원재료 수확 일시 & 산지' : '1. Harvest Date & Origin'}</span>
+          </div>
+          <div class="text-white font-mono font-bold">${data.harvestDate}</div>
+          <div class="text-[11px] text-slate-300 mt-0.5">${harvestLoc}</div>
+        </div>
+
+        <!-- Step 2: Quality Inspection -->
+        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+          <div class="flex items-center gap-1.5 text-sky-300 font-bold mb-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>${currentLang === 'ko' ? '2. 유기농 및 안전성 검사' : '2. Safety & Organic Lab Test'}</span>
+          </div>
+          <div class="text-white font-bold text-[11px]">${rawInspect}</div>
+          <div class="text-[10px] text-emerald-400 font-mono mt-0.5">${data.organicCertNo}</div>
+        </div>
+
+        <!-- Step 3: Manufacturing -->
+        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+          <div class="flex items-center gap-1.5 text-emerald-300 font-bold mb-1">
+            <i data-lucide="factory" class="w-3.5 h-3.5"></i>
+            <span>${currentLang === 'ko' ? '3. 완제품 스마트 제조 일시' : '3. Finished Batch Time'}</span>
+          </div>
+          <div class="text-white font-mono font-bold">${data.factoryDate}</div>
+          <div class="text-[11px] text-slate-300 mt-0.5">${plantLine}</div>
+        </div>
+
+        <!-- Step 4: Expiration & Global Status -->
+        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+          <div class="flex items-center gap-1.5 text-rose-300 font-bold mb-1">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span>${currentLang === 'ko' ? '4. 유통기한 및 통관 적합성' : '4. Expiration & Status'}</span>
+          </div>
+          <div class="text-white font-mono font-bold">${data.bestBefore}</div>
+          <div class="text-[10px] text-amber-300 mt-0.5">● ${data.status}</div>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+function openTraceModal(batchCode) {
+  const traceSec = document.getElementById("traceability");
+  if (traceSec) {
+    traceSec.scrollIntoView({ behavior: 'smooth' });
+  }
+  setBatchInput(batchCode);
+}
+
+// -------------------------------------------------------------
+// 8. Product Detail Modal
+// -------------------------------------------------------------
+function openProductDetail(productId) {
+  const item = productsData.find(p => p.id === productId);
+  if (!item) return;
+
+  const modal = document.getElementById("productModal");
+  const modalBody = document.getElementById("productModalBody");
+  if (!modal || !modalBody) return;
+
+  const name = currentLang === 'ko' ? item.nameKo : item.nameEn;
+  const ingredients = currentLang === 'ko' ? item.ingredientsKo : item.ingredientsEn;
+  const desc = currentLang === 'ko' ? item.descKo : item.descEn;
+
+  modalBody.innerHTML = `
+    <button onclick="closeProductModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-700 p-1 rounded-full">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+
+    <div class="space-y-6">
+      <div class="space-y-1">
+        <span class="px-2.5 py-1 rounded bg-brand-100 text-brand-800 text-xs font-bold">${currentLang === 'ko' ? '정부 공인 규격서' : 'Official Spec Sheet'}</span>
+        <h3 class="text-2xl font-black text-slate-900">${name}</h3>
+        <p class="text-xs text-slate-500 font-mono">Lot Number: ${item.batchCode}</p>
+      </div>
+
+      <p class="text-sm text-slate-600 leading-relaxed">${desc}</p>
+
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">${currentLang === 'ko' ? '원재료 상세 구성' : 'Ingredient Breakdown'}</h4>
+        <p class="text-xs text-slate-600 leading-relaxed">${ingredients}</p>
+      </div>
+
+      <!-- Guaranteed Analysis Table -->
+      <div class="border border-slate-200 rounded-2xl overflow-hidden text-xs">
+        <div class="bg-slate-100 px-4 py-2.5 font-bold text-slate-800 border-b border-slate-200">
+          ${currentLang === 'ko' ? '보증 영양 성분표 (AAFCO / FEDIAF 기준 충족)' : 'Guaranteed Analysis (Meets AAFCO / FEDIAF Profiles)'}
+        </div>
+        <div class="grid grid-cols-2 divide-x divide-slate-200 border-b border-slate-200">
+          <div class="p-3 text-slate-600">${currentLang === 'ko' ? '조단백질 (Crude Protein)' : 'Crude Protein'}</div>
+          <div class="p-3 font-bold text-slate-900 font-mono">${item.protein} Min</div>
+        </div>
+        <div class="grid grid-cols-2 divide-x divide-slate-200 border-b border-slate-200">
+          <div class="p-3 text-slate-600">${currentLang === 'ko' ? '조지방 (Crude Fat)' : 'Crude Fat'}</div>
+          <div class="p-3 font-bold text-slate-900 font-mono">${item.fat} Min</div>
+        </div>
+        <div class="grid grid-cols-2 divide-x divide-slate-200">
+          <div class="p-3 text-slate-600">${currentLang === 'ko' ? '대사에너지 (Caloric Density)' : 'Caloric Density'}</div>
+          <div class="p-3 font-bold text-slate-900 font-mono">${item.kcal}</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="downloadSpecSheet('${item.nameEn}')" class="flex-1 py-3 rounded-xl bg-brand-deep hover:bg-brand-forest text-white font-bold text-xs tracking-wide transition flex items-center justify-center gap-2">
+          <i data-lucide="download" class="w-4 h-4 text-amber-300"></i>
+          <span>${currentLang === 'ko' ? '바이어용 영문 기술 스펙시트 다운로드 (PDF)' : 'Download Technical Spec Sheet (PDF)'}</span>
+        </button>
+        <button onclick="closeProductModal(); openBuyerModal();" class="px-4 py-3 rounded-xl border border-slate-300 hover:border-brand-500 text-slate-700 font-bold text-xs transition">
+          ${currentLang === 'ko' ? '바이어 수입 상담' : 'Buyer Inquiry'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function closeProductModal() {
+  const modal = document.getElementById("productModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+// -------------------------------------------------------------
+// 9. Buyer Inquiry Modal
+// -------------------------------------------------------------
+function openBuyerModal() {
+  const modal = document.getElementById("buyerModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+}
+
+function closeBuyerModal() {
+  const modal = document.getElementById("buyerModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+function handleBuyerSubmit(e) {
+  e.preventDefault();
+  const alertMsg = currentLang === 'ko' 
+    ? "바이어 상담 신청이 정상 접수되었습니다! 24시간 내 글로벌 전담 수출 매니저가 연락드리겠습니다."
+    : "Your B2B buyer inquiry has been received! Our global export manager will get in touch within 24 hours.";
+  alert(alertMsg);
+  closeBuyerModal();
+}
+
+function downloadCatalogAlert() {
+  const msg = currentLang === 'ko'
+    ? "[2026 K-Petfood Official Export Catalog (PDF)] 다운로드가 시작되었습니다."
+    : "Starting download of [2026 K-Petfood Official Export Catalog (PDF)].";
+  alert(msg);
+}
+
+function downloadSpecSheet(prodName) {
+  const msg = currentLang === 'ko'
+    ? `[${prodName} Official Technical Spec Sheet (PDF)] 다운로드가 완료되었습니다.`
+    : `Downloaded technical spec sheet for [${prodName}].`;
+  alert(msg);
+}
+
+// -------------------------------------------------------------
+// 10. Mobile Menu Toggle
+// -------------------------------------------------------------
+function toggleMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  if (menu) {
+    menu.classList.toggle("hidden");
+  }
+}
